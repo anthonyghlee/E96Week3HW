@@ -10,7 +10,6 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
     // TODO: create variable storing the Animator
 
-
     [SerializeField] float speed = 5f;
     [SerializeField] float jumpHeight = 5f;
 
@@ -45,7 +44,8 @@ public class PlayerController : MonoBehaviour
     {
         //if player is on the ground, jump
         //if (isGrounded)
-        Jump();
+        if (isGrounded)
+            Jump();
     }
 
     private void Jump()
@@ -77,5 +77,32 @@ public class PlayerController : MonoBehaviour
         transform.localScale = newlocalScale;
     }
 
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        isGrounded = false;
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        List<GameObject> currentCollisions = new List<GameObject>();
+        currentCollisions.Add(collision.gameObject);
+        Debug.Log(currentCollisions);
+        isGrounded = false;
+        for (int i = 0; i < collision.contactCount; i++)
+        {
+            if (Vector2.Angle(collision.GetContact(i).normal, Vector2.up) < 45f)
+            {
+                Debug.Log(Vector2.Angle(collision.GetContact(i).normal, Vector2.up));
+                isGrounded = true;
+                return;
+            }
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Collectibles"))
+            Destroy(other.gameObject);
+    }
     // TODO: Week 3's assignment needs a couple of extra functions here...
 }
